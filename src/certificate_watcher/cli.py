@@ -3,8 +3,8 @@ Command-line interface for the certificate watcher.
 """
 
 import argparse
+import shlex
 import sys
-from pprint import pprint
 
 import certificate_watcher.checker as cw_checker
 import certificate_watcher.config as cw_config
@@ -32,16 +32,26 @@ def report(options: argparse.Namespace, good_certs, warn_certs, crit_certs) -> N
             print()
 
 
-def main() -> int:
-    description = """Watch SSL certificates for expiration."""
+def main(argv: list[str] | None = None) -> int:
+    if argv is None:  # launched directly from pyproject.toml scripts section
+        argv = sys.argv
+
+    description = """Watch SSL/TLS certificates for expiration."""
     epilog = """"""
 
     parser = argparse.ArgumentParser(description=description, epilog=epilog)
 
+    # Special case handling for VSCode launch.json argsExpand option
+    if len(argv) > 1 and argv[1] == '--argsExpand':
+        argv.pop(1)  # remove --argsExpand
+        if len(argv) > 1:  # still have args to expand
+            additionalArgs = ' '.join(argv[1:])
+            argv = argv[:1] + shlex.split(additionalArgs)
+
     # global options
     parser.add_argument("--config", "-c", metavar="FILE", help="YAML configuration file")
 
-    options = parser.parse_args()
+    options = parser.parse_args(argv[1:])
 
     cert_config = None
     if options.config:
@@ -59,4 +69,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv))
