@@ -46,8 +46,17 @@ class EmailNotification:
 
 
 @dataclass
+class MailhostConfig:
+    host: str
+    port: int = 25
+    user: str | None = None
+    password: str | None = None
+
+
+@dataclass
 class NotificationsConfig:
     destinations: list[EmailNotification] = field(default_factory=list)
+    mailhost: MailhostConfig | None = None
 
 
 @dataclass
@@ -112,6 +121,19 @@ def _build_alert_config(section: dict) -> AlertConfig:
 
 def _build_notifications_config(section: dict) -> NotificationsConfig:
     sources = section.get("source", {})
+    email_source = sources.get("email")
+    mailhost = None
+    if email_source is not None and email_source.get("mailhost") is not None:
+        mailhost_entry = email_source["mailhost"]
+        if not isinstance(mailhost_entry, Mapping) or not mailhost_entry.get("host"):
+            raise ValueError("notifications.source.email.mailhost is missing required field: host")
+        mailhost = MailhostConfig(
+            host=mailhost_entry["host"],
+            port=mailhost_entry.get("port", 25),
+            user=mailhost_entry.get("user"),
+            password=mailhost_entry.get("password"),
+        )
+
     destinations = []
     for index, entry in enumerate(section.get("destinations", [])):
         notification_type = entry.get("type")
@@ -122,6 +144,9 @@ def _build_notifications_config(section: dict) -> NotificationsConfig:
         source_entry = sources.get(notification_type)
         if source_entry is None:
             raise ValueError(f"destination {index} has no matching notifications.source.{notification_type} entry")
+
+        if notification_type == "email" and mailhost is None:
+            raise ValueError("notifications.source.email.mailhost is missing required field: host")
 
         from_address = source_entry.get("address")
         to_address = entry.get("address")
@@ -139,7 +164,7 @@ def _build_notifications_config(section: dict) -> NotificationsConfig:
                 to_name=entry.get("to", ""),
             )
         )
-    return NotificationsConfig(destinations=destinations)
+    return NotificationsConfig(destinations=destinations, mailhost=mailhost)
 
 
 def _parse_config(document: dict) -> AppConfig:

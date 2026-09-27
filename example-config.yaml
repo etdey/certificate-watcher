@@ -35,6 +35,11 @@ notifications:
     email:
       address: no-reply@example.com
       from: Certificate Watcher
+      mailhost:
+        host: smtp.example.com
+        port: 25
+        user: your_username
+        password: your_password
   destinations:
     - type: email
       address: user@example.com
