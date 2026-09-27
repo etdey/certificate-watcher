@@ -1,3 +1,9 @@
+"""
+Tests for the configuration loading and parsing module.
+
+Copyright (c) 2026 Eric Dey. All rights reserved.
+"""
+
 import io
 from textwrap import dedent
 import unittest

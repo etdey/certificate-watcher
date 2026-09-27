@@ -1,5 +1,7 @@
 """
-Check and alerting for certificates
+Checking logic for certificate valid times
+
+Copyright (c) 2026 Eric Dey. All rights reserved.
 """
 
 from argparse import Namespace

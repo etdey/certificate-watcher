@@ -1,5 +1,7 @@
 """
-Module for handling STARTTLS connections.
+Module for handling STARTTLS connections for different application protocols.
+
+Copyright (c) 2026 Eric Dey. All rights reserved.
 """
 
 import imaplib

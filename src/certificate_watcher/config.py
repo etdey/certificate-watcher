@@ -1,5 +1,7 @@
 """
-Configuration module for the certificate watcher.
+Configuration loading and validation.
+
+Copyright (c) 2026 Eric Dey. All rights reserved.
 """
 
 import os

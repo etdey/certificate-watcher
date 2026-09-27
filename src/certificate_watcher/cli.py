@@ -1,5 +1,7 @@
 """
 Command-line interface for the certificate watcher.
+
+Copyright (c) 2026 Eric Dey. All rights reserved.
 """
 
 import argparse
@@ -11,7 +13,7 @@ import certificate_watcher.config as cw_config
 import certificate_watcher.reporting as cw_reporting
 
 
-def report(options: argparse.Namespace, good_certs, warn_certs, crit_certs) -> None:
+def report_console(options: argparse.Namespace, good_certs, warn_certs, crit_certs) -> None:
 
     groups = [
         ('Critical Certificates', crit_certs),
@@ -53,6 +55,7 @@ def main(argv: list[str] | None = None) -> int:
 
     # global options
     parser.add_argument("--config", "-c", metavar="FILE", help="YAML configuration file")
+    parser.add_argument("--console", action="store_true", help="output to console only")
     parser.add_argument("--report", "-r", action="append", choices=report_choices, help="groups to report; multiples allowed (default: all groups)")
 
     options = parser.parse_args(argv[1:])
@@ -71,8 +74,10 @@ def main(argv: list[str] | None = None) -> int:
 
     good_certs, warn_certs, crit_certs = cw_checker.check_endpoints(options, cert_config)
 
-    # report(options, good_certs, warn_certs, crit_certs)
-    cw_reporting.send_reports(options, cert_config, good_certs, warn_certs, crit_certs)
+    if options.console:
+        report_console(options, good_certs, warn_certs, crit_certs)
+    else:
+        cw_reporting.send_reports(options, cert_config, good_certs, warn_certs, crit_certs)
 
     return 0
 

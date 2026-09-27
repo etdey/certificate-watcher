@@ -1,5 +1,7 @@
 """
-Reporting module for the certificate watcher.
+Reporting implementation for the certificate watcher.
+
+Copyright (c) 2026 Eric Dey. All rights reserved.
 """
 
 import smtplib

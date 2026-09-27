@@ -1,3 +1,10 @@
+"""
+Tests for the certificate module of the certificate watcher.
+
+Copyright (c) 2026 Eric Dey. All rights reserved.
+"""
+
+
 import datetime
 import unittest
 from unittest.mock import Mock, patch

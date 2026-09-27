@@ -1,5 +1,7 @@
 """
 Module to validate SSL/TLS certificates details from an SSL/TLS socket.
+
+Copyright (c) 2026 Eric Dey. All rights reserved.
 """
 
 import datetime

@@ -1,3 +1,9 @@
+"""
+Tests for the certificate checking module.
+
+Copyright (c) 2026 Eric Dey. All rights reserved.
+"""
+
 import datetime
 import unittest
 from argparse import Namespace
