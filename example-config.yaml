@@ -1,0 +1,44 @@
+#
+# Example configuration for the certificate watcher
+#
+watch:
+  - id: name1
+    description: Example HTTPS server
+    host: host3.example.com
+    port: 443
+  - id: name2
+    description: Example STMP server with STARTTLS support
+    host: host.example.com
+    port: 25
+    starttls: smtp
+  - id: name3
+    description: Example IMAP server with STARTTLS support
+    host: host2.example.com
+    port: 143
+    starttls: imap
+  - id: name4
+    description: Example IMAPS server
+    host: host3.example.com
+    port: 993
+  - id: name5
+    description: Internal HTTPS server with unknown CA
+    host: inside1.example.com
+    port: 443
+    unsafe_validation: true
+
+config:
+  warning_days: 21
+  critical_days: 7
+
+notifications:
+  source:
+    email:
+      address: no-reply@example.com
+      from: Certificate Watcher
+  destinations:
+    - type: email
+      address: user@example.com
+      to: First Last
+    - type: email
+      address: anotheruser@example.com
+      to: Another User
