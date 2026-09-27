@@ -8,6 +8,7 @@ import sys
 
 import certificate_watcher.checker as cw_checker
 import certificate_watcher.config as cw_config
+import certificate_watcher.reporting as cw_reporting
 
 
 def report(options: argparse.Namespace, good_certs, warn_certs, crit_certs) -> None:
@@ -39,6 +40,8 @@ def main(argv: list[str] | None = None) -> int:
     description = """Watch SSL/TLS certificates for expiration."""
     epilog = """"""
 
+    report_choices = ["good", "warning", "critical"]
+
     parser = argparse.ArgumentParser(description=description, epilog=epilog)
 
     # Special case handling for VSCode launch.json argsExpand option
@@ -50,20 +53,26 @@ def main(argv: list[str] | None = None) -> int:
 
     # global options
     parser.add_argument("--config", "-c", metavar="FILE", help="YAML configuration file")
+    parser.add_argument("--report", "-r", action="append", choices=report_choices, help="groups to report; multiples allowed (default: all groups)")
 
     options = parser.parse_args(argv[1:])
 
     cert_config = None
     if options.config:
         cert_config = cw_config.read_config(options.config)
+        if not cert_config:
+            print("No configuration provided.")
+            return 1
+    assert(cert_config is not None)
 
-    if not cert_config:
-        print("No configuration provided.")
-        return 1
+    if options.report is None or len(options.report) == 0:
+        options.report = report_choices
+
 
     good_certs, warn_certs, crit_certs = cw_checker.check_endpoints(options, cert_config)
 
-    report(options, good_certs, warn_certs, crit_certs)
+    # report(options, good_certs, warn_certs, crit_certs)
+    cw_reporting.send_reports(options, cert_config, good_certs, warn_certs, crit_certs)
 
     return 0
 
