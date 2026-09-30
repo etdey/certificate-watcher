@@ -36,11 +36,11 @@ This is copyrighted software; see the `LICENSE` file for details about the licen
 
 ### Runtime Only
 
-If you just want to use the tool and don't want to any development with it, this section is for you.
+If you just want to use the tool and don't want to do any development with it, this section is for you.
 
 You only need the Python wheel (`*.whl`) file and your favorite way to install it.
 
-If you want to use [the 'uv' tool](https://github.com/astral-sh/uv) from [Astral](https://astral.sh/), check that you have installed it on your system and then run:
+If you want to install it with [the 'uv' tool](https://github.com/astral-sh/uv) from [Astral](https://astral.sh/), check that you have installed uv on your system and then run:
 
 ```sh
 uv tool install /path/to/certificate-watcher-{version}-py3-none-any.whl
@@ -66,7 +66,19 @@ When you run this tool through 'uv', you will use `uv run cert-watcher` from the
 
 Each execution is controlled by a YAML configuration file. You can create different runtime profiles using different configuration files and separate runs of the tool.
 
-Refer to the example configuration file: `example-config.yaml`
+Refer to the example configuration file: `example-config.yaml`.
+
+Overview of the configuration sections:
+```yaml
+watch:
+
+config:
+
+notifications:
+  source:
+
+  destinations:
+```
 
 ### Section: 'watch'
 
@@ -116,6 +128,10 @@ This contains details for whom the notifications come from and how they are deli
 
 In deployments where internal clients are permitted to relay email without authentication, you will only need to set the `mailhost.host` parameter.
 
+While the `email.from` value is optional, it allows for a well-formatted  
+`From: from-name <from-addr>`  
+header field that the recipients see in the outbound email message.
+
 #### Subsection 'destinations'
 
 This contains a list of entries that define to whom to deliver notifications. Each item in the list has these elements:
@@ -124,14 +140,16 @@ This contains a list of entries that define to whom to deliver notifications. Ea
 - `address` -- the to-address for the email message (e.g., `bob@example.com`)
 - `to` -- the to-name for the email message (e.g., 'Admin Bob')
 
-While the `to` value is optional, it allows for a well-formatted `From: to-name <to-addr>` header field in the outbound email message.
+While the `to` value is optional, it allows for a well-formatted  
+`To: to-name <to-addr>`  
+header field in the outbound email message. 
 
-Each contact in the `destinations` list is sent a separate notification. In other words: separate emails addressed to one contact only instead of a "To:" header that lists multiple contacts.
+Each contact in the `destinations` list is sent a separate notification. In other words, separate emails addressed to one contact each are sent instead of a single message with a "To:" header that lists multiple contacts.
 
 
 ## Running
 
-See the _Installation_ section for the two ways that you can run the tool either from a system-install wheel or from a project source tree. For the examples in this section, I assume that you have installed the wheel on your system.
+See the _Installation_ section for the two ways that you can run the tool either from a system-installed wheel or from a project source tree. For the examples in this section, I assume that you have installed the wheel on your system.
 
 After configuration, this is basic usage to get a report for all certificates:
 ```sh
@@ -142,6 +160,12 @@ You can filter the reporting to show only warning and critical certificates:
 ```sh
 cert-watcher -c {your-config.yaml} -r critical -r warning
 ```
+
+If you want to see the report without sending notifications, you can report to the console only:
+```sh
+cert-watcher -c {your-config.yaml} --console
+```
+
 
 Detailed help on all command line arguments:
 ```sh
