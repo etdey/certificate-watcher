@@ -59,7 +59,6 @@ class ParseConfigTests(unittest.TestCase):
 				port: 587
 				description: Outbound mail
 				starttls: smtp
-				unsafe_validation: true
 			  - id: web
 				host: www.example.com
 				port: 443
@@ -75,7 +74,7 @@ class ParseConfigTests(unittest.TestCase):
 					port=587,
 					description="Outbound mail",
 					starttls="smtp",
-					strict=True,
+					strict=True,  # default if not specified in the config
 				),
 				WatchTarget(id="web", host="www.example.com", port=443),
 			],
@@ -163,6 +162,7 @@ class ParseConfigTests(unittest.TestCase):
 				port=587,
 				user="watcher",
 				password="secret",
+				secure_auth=True,  # default if not specified in the config
 			),
 		)
 
