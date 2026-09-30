@@ -118,19 +118,23 @@ This section describes the _who_ and _how_ for sending notifications.
 This contains details for whom the notifications come from and how they are delivered. Currently, only SMTP email is supported.
 
 - `email` -- this is the notification type
-- `email.address` -- the from-address for the email messages
-- `email.from` -- the from-name for the email message (e.g., 'Certificate Watcher')
+  - `address` -- the from-address for the email messages
+  - `from` -- the from-name for the email message (e.g., 'Certificate Watcher')
 - `mailhost` -- defines how to send SMTP messages
-- `mailhost.host` -- SMTP mail server (MTA) or relay
-- `mailhost.port` -- (optional, default=25) mail server port
-- `mailhost.user` -- (optional) MTA authentication user name
-- `mailhost.password` -- (optional) authentication password for user
+  - `host` -- SMTP mail server (MTA) or relay
+  - `port` -- (optional, default=25) mail server port
+  - `user` -- (optional) MTA authentication user name
+  - `password` -- (optional) authentication password for user
+  - `secure_auth` -- (optional) only authenticate over a TLS connection
 
 In deployments where internal clients are permitted to relay email without authentication, you will only need to set the `mailhost.host` parameter.
 
 While the `email.from` value is optional, it allows for a well-formatted  
 `From: from-name <from-addr>`  
 header field that the recipients see in the outbound email message.
+
+If your mailhost requires authentication but does not support STARTTLS, you will need to set `mailhost.secure_auth = false` to allow this tool to send your credentials in cleartext to the MTA. **Think carefully before you do this over any network segments that are outside of your control.**
+
 
 #### Subsection 'destinations'
 

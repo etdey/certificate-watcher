@@ -53,6 +53,7 @@ class MailhostConfig:
     port: int = 25
     user: str | None = None
     password: str | None = None
+    secure_auth: bool = True
 
 
 @dataclass
@@ -136,6 +137,7 @@ def _build_notifications_config(section: dict) -> NotificationsConfig:
             port=mailhost_entry.get("port", 25),
             user=mailhost_entry.get("user"),
             password=mailhost_entry.get("password"),
+            secure_auth=mailhost_entry.get("secure_auth", True),
         )
 
     destinations = []

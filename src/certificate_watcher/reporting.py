@@ -5,6 +5,7 @@ Copyright (c) 2026 Eric Dey. All rights reserved.
 """
 
 import smtplib
+import ssl
 from argparse import Namespace
 from email.message import EmailMessage
 from email.utils import formataddr, formatdate
@@ -57,9 +58,34 @@ def _send_email_report(options: Namespace, cw_config: AppConfig, output_groups) 
         raise ValueError("email notifications require notifications.source.email.mailhost.host")
 
     with smtplib.SMTP(mailhost.host, mailhost.port) as smtp:
-        if mailhost.user is not None:
-            smtp.login(mailhost.user, mailhost.password or "")
+        smtp.ehlo()
+        starttls_succeeded = False
+        try:
+            smtp.starttls(context=ssl.create_default_context())
+            smtp.ehlo()  # second EHLO required by RFC 3207 after STARTTLS
+            starttls_succeeded = True
+            # TODO: Add application logging here for successful STARTTLS
+        except smtplib.SMTPNotSupportedError:
+            # STARTTLS is not supported by the server
+            # TODO: Add application logging here for failed STARTTLS
+            pass
 
+        # Authenticate with the server under these conditions:
+        #   1.  user name is specified in the mailhost configuration, AND
+        #   2.  either STARTTLS succeeded OR secure_auth is not required
+        # This prevents cleartext credentials from being sent over an
+        # unencrypted connection unless explicitly allowed by configuration.
+        #
+        if mailhost.user is not None and (starttls_succeeded or not mailhost.secure_auth):
+            try:
+                smtp.login(mailhost.user, mailhost.password or "")
+                # TODO: Add application logging here for successful authentication
+            except (smtplib.SMTPException, OSError):
+                # Auth failed, but give it a best-effort attempt w/o auth
+                # TODO: Add application logging here for failed authentication
+                pass
+
+        # Pipeline all individual email messages through open SMTP connection
         for destination in email_destinations:
             message = EmailMessage()
             message["From"] = formataddr((destination.from_name, destination.from_address))
@@ -70,7 +96,12 @@ def _send_email_report(options: Namespace, cw_config: AppConfig, output_groups) 
                 message["Importance"] = "high"
             message["Content-Type"] = "text/plain; charset=utf-8"
             message.set_content(body, charset="utf-8")
-            smtp.send_message(message)
+            try:
+                smtp.send_message(message)
+                # TODO: Add application logging here for successful send to recipient
+            except (smtplib.SMTPException, OSError):
+                # TODO: Add application logging here for failed email send
+                pass
 
 
 def send_reports(options: Namespace, cw_config: AppConfig, good_certs, warn_certs, crit_certs) -> None:
