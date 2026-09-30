@@ -24,7 +24,7 @@ class WatchTarget:
     port: int
     description: str = ""
     starttls: str | None = None
-    strict: bool = False
+    strict: bool = True
 
 
 @dataclass
@@ -101,14 +101,16 @@ def _build_watch_targets(entries: list) -> list[WatchTarget]:
         missing = [key for key in ("id", "host", "port") if key not in entry]
         if missing:
             raise ValueError(f"watch entry {index} ({entry.get('id', '?')!r}) is missing required field(s): {', '.join(missing)}")
+
+        use_strict = not entry.get("unsafe_validation", False)  # strict is inverse of unsafe_validation
         targets.append(
             WatchTarget(
-                id=entry["id"],
-                host=entry["host"],
-                port=entry["port"],
-                description=entry.get("description", ""),
-                starttls=entry.get("starttls"),
-                strict=entry.get("unsafe_validation", False),
+                id = entry["id"],
+                host = entry["host"],
+                port = entry["port"],
+                description = entry.get("description", ""),
+                starttls = entry.get("starttls"),
+                strict = use_strict,
             )
         )
     return targets
