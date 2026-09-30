@@ -29,12 +29,14 @@ def _send_email_report(options: Namespace, cw_config: AppConfig, output_groups) 
     for group, marker in ordered_groups:
         for cert in output_groups.get(group, []):
             starttls = f" (starttls: {cert.cw_starttls})" if cert.cw_starttls else ""
+            unvalidated = " (unvalidated)" if not cert.validated else ""
             blocks.append(
                 "\n".join(
                     (
                         f"{marker} Certificate for {cert.host}:{cert.port}{starttls}",
                         f"\tDescription: {cert.cw_description}",
-                        f"\tSubject: {cert.subject}",
+                        f"\tSubject: {cert.subject}{unvalidated}",
+                        f"\tIssuer: {cert.issuer}{unvalidated}",
                         f"\tStarted: {cert.time_since_valid.days} days ago",
                         f"\tExpires: {cert.not_after}, ({cert.time_until_expiration.days} days left)",
                     )

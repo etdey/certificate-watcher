@@ -27,9 +27,11 @@ def report_console(options: argparse.Namespace, good_certs, warn_certs, crit_cer
 
         print(f"\n{group_name}:")
         for cert in certs:
+            unvalidated = " (unvalidated)" if not cert.validated else ""
             print(f"  Certificate for {cert.host}:{cert.port}{' (starttls: ' + cert.cw_starttls + ')' if cert.cw_starttls else ''}")
             print(f"    Description: {cert.cw_description}")
-            print(f"    Subject: {cert.subject}")
+            print(f"    Subject: {cert.subject}{unvalidated}")
+            print(f"    Issuer: {cert.issuer}{unvalidated}")
             print(f"    Started: {cert.time_since_valid.days} days ago")
             print(f"    Expires: {cert.not_after}, ({cert.time_until_expiration.days} days left)")
             print()
@@ -54,23 +56,17 @@ def main(argv: list[str] | None = None) -> int:
             argv = argv[:1] + shlex.split(additionalArgs)
 
     # global options
-    parser.add_argument("--config", "-c", metavar="FILE", help="YAML configuration file")
+    parser.add_argument("--config", "-c", metavar="FILE", required=True, help="YAML configuration file")
     parser.add_argument("--console", action="store_true", help="output to console only")
     parser.add_argument("--report", "-r", action="append", choices=report_choices, help="groups to report; multiples allowed (default: all groups)")
 
     options = parser.parse_args(argv[1:])
 
-    cert_config = None
-    if options.config:
-        cert_config = cw_config.read_config(options.config)
-        if not cert_config:
-            print("No configuration provided.")
-            return 1
-    assert(cert_config is not None)
+    cert_config = cw_config.read_config(options.config)
 
+    # default to all reporting groups if no specific groups requested
     if options.report is None or len(options.report) == 0:
         options.report = report_choices
-
 
     good_certs, warn_certs, crit_certs = cw_checker.check_endpoints(options, cert_config)
 

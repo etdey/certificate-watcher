@@ -26,6 +26,7 @@ class CertificateSummary:
     time_since_valid: datetime.timedelta
     time_until_expiration: datetime.timedelta
     san: list[str]
+    validated: bool = False
     cw_id: str = ""
     cw_description: str = ""
     cw_starttls: str = ""
@@ -118,5 +119,6 @@ def get_certificate(host: str, port: int, starttls: str | None = None, strict: b
             not_after = not_after,
             time_since_valid = today - not_before,
             time_until_expiration = not_after - today,
-            san = san
+            san = san,
+            validated = strict,
         )
