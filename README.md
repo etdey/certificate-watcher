@@ -1,6 +1,8 @@
 # SSL/TLS Certificate Watcher
 
-This package is a command-line tool for monitoring SSL/TLS certificates that your network services present to clients. It connects to a list of service endpoints, including direct TLS services and endpoints that require STARTTLS, captures certificate details, and checks whether each certificate is currently valid or approaching expiration.
+TL;DR:  Monitor SSL/TLS endpoints with email reporting of results.
+
+This package is a command-line tool for monitoring SSL/TLS certificates that your network services present to clients. It connects to a list of service endpoints, including direct TLS services and endpoints that require STARTTLS, captures certificate details, and checks whether each certificate is currently valid or approaching expiration. Results can be reporting to the console of a list of email recipients.
 
 The tool uses a YAML configuration file to define the monitored endpoints, warning and critical expiration thresholds, and notification destinations. You can filter by which threshold groups (good, warning, critical) that you report on.
 
@@ -120,12 +122,12 @@ This contains details for whom the notifications come from and how they are deli
 - `email` -- this is the notification type
   - `address` -- the from-address for the email messages
   - `from` -- the from-name for the email message (e.g., 'Certificate Watcher')
-- `mailhost` -- defines how to send SMTP messages
-  - `host` -- SMTP mail server (MTA) or relay
-  - `port` -- (optional, default=25) mail server port
-  - `user` -- (optional) MTA authentication user name
-  - `password` -- (optional) authentication password for user
-  - `secure_auth` -- (optional) only authenticate over a TLS connection
+  - `mailhost` -- defines how to send SMTP messages
+    - `host` -- SMTP mail server (MTA) or relay
+    - `port` -- (optional, default=25) mail server port
+    - `user` -- (optional) MTA authentication user name
+    - `password` -- (optional) authentication password for user
+    - `secure_auth` -- (optional) only authenticate over a TLS connection
 
 In deployments where internal clients are permitted to relay email without authentication, you will only need to set the `mailhost.host` parameter.
 
